@@ -1,0 +1,7 @@
+.list {
+ overflow-x: scroll;
+}
+
+.list_item {
+    width: 277px;
+}
