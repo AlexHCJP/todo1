@@ -69,12 +69,35 @@ document.addEventListener('DOMContentLoaded', () => {
         render();
     }  
 
-    const onDeleteTask = () => {
-
+    const onDeleteTask = (task) => (ev) => {
+        tables = tables.map((table) => {    
+            table.tasks = table.tasks.filter((value) => value.id != task.id);
+            return table;
+        })
+        render();
     }
 
-    const onNextTask = () => {
-
+    const onNextTask = (nextTask) => (ev) => {
+        let nextIndex;
+        tables = tables.map((table, tableIndex) => {
+            console.log('index', nextIndex, tableIndex);
+            if(nextIndex == tableIndex) {
+                table.tasks.push(nextTask);
+            } else {
+                table.tasks = table.tasks.filter((value, index) => {
+                    const check = value.id != nextTask.id;
+                    console.log('Check', nextIndex, tableIndex);
+                    if(!check) {
+                        nextIndex = tableIndex + 1;
+                    }
+                    return check;
+                });
+    
+            }
+            
+            return table;
+        });
+        render();
     }
 
     const Form = () => {
@@ -142,10 +165,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const deleteButton = document.createElement('button');
         deleteButton.className = 'btn btn-danger';
         deleteButton.append(document.createTextNode('Удалить'));
+        deleteButton.addEventListener('click', onDeleteTask(task));
 
         const nextButton = document.createElement('button');
         nextButton.className = 'btn btn-primary';
         nextButton.append(document.createTextNode('Дальше'));
+        nextButton.addEventListener('click', onNextTask(task));
+        
 
         taskBodyElement.append(headerElement);
         taskBodyElement.append(nextButton);
@@ -187,9 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('render');
         Form();
         Tables(tables);
-
-
-
     }
 
     const init = () => {
