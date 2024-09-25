@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title: "В прогрессе",
             tasks: [
                 {
-                    id: 1,
+                    id: 2,
                     text: "Первая задача"
                 }
             ]
@@ -22,22 +22,91 @@ document.addEventListener('DOMContentLoaded', () => {
             title: "Готово",
             tasks: [
                 {
-                    id: 1,
+                    id: 3,
                     text: "Первая задача"
                 }
             ]
         }
     ]
 
+    let updatedId;
+
+
+    const onCreateTask = (form) => (ev) => {
+        ev.preventDefault();
+
+        const title = new FormData(form).get('title');
+        if(!title) return; 
+
+        if(updatedId) {
+            tables = tables.map((table) => {
+                table.tasks = table.tasks.map((task) => {
+                    if(updatedId == task.id) {
+                        task.text = title;
+                    } 
+                    return task;
+                })
+                return table;
+            })
+        } else {
+            // if(title.length <= 0) return;
+
+            tables[0].tasks.push({
+                id: Date.now(),
+                text: title,
+            });
+        }
+
+        updatedId = null;
+        render();
+
+        
+    }
+
+
+    const onUpdateTask = (task) => (ev) => {
+        updatedId = task.id;
+        render();
+    }  
+
+    const onDeleteTask = () => {
+
+    }
+
+    const onNextTask = () => {
+
+    }
+
     const Form = () => {
         const formInput = document.querySelector('#form-input');
+        formInput.innerHTML = '';
+        formInput.addEventListener('submit', onCreateTask(formInput))
+
+
+
+        const task = tables.reduce((prevValue, value) => {
+            if(prevValue) return prevValue;
+            const task = value.tasks.find((element, index, arrays) => {
+                console.log(element.id, updatedId);
+                return element.id == updatedId;
+            });
+            return task;
+        }, null);
+
+        
+        
 
         const inputElement = document.createElement('input');
+        inputElement.setAttribute('name', 'title');
         inputElement.setAttribute('type', 'text');
         inputElement.className = 'form-control col';
         inputElement.setAttribute('placeholder', "Название задачи");
+        if(task) {
+            inputElement.setAttribute('value', task.text);
+        }
 
-        const buttonElement = document.createElement('button');
+        const buttonElement = document.createElement('input');
+        buttonElement.setAttribute('type', 'submit');
         buttonElement.className = 'btn btn-primary  col mt-2';
         buttonElement.append(document.createTextNode('Добавить'))
 
@@ -47,12 +116,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const Tables = (tables) => {
         const tablesElement = document.querySelector('#tables');
+        tablesElement.innerHTML = '';
 
         tables.forEach(table => {
             tablesElement.append(Table(table));
         });
     }
-
 
    
     const Task = (task) => {
@@ -68,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const updateButton = document.createElement('button');
         updateButton.className = 'btn btn-warning';
         updateButton.append(document.createTextNode('Изменить'));
+        updateButton.addEventListener('click', onUpdateTask(task));
 
         const deleteButton = document.createElement('button');
         deleteButton.className = 'btn btn-danger';
@@ -88,8 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return taskElement;
     }
     
-
-
     const Table = (table) => {
 
         const tableElement = document.createElement('div');
@@ -116,8 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     const render = () => {
+        console.log('render');
         Form();
         Tables(tables);
+
+
 
     }
 
